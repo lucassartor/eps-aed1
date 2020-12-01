@@ -49,7 +49,7 @@ int tamanho(PFILA f) {
 bool inserirElemento(PFILA f, int id, float prioridade) {
     bool res = false;
 
-    int resposta;
+    float *resposta = NULL;
 
     //Verifica se o elemento eh valido, caso nao for retorna false
     if (id < 0 || id >= f->maxElementos || consultarPrioridade(f, id, resposta))
@@ -128,7 +128,7 @@ bool inserirElemento(PFILA f, int id, float prioridade) {
 bool aumentarPrioridade(PFILA f, int id, float novaPrioridade) {
     bool res = false;
 
-    int resposta;
+    float *resposta = NULL;
 
     //Verifica se o elemento eh valido, caso nao for retorna false
     if (id < 0 || id >= f->maxElementos || !consultarPrioridade(f, id, resposta))
@@ -169,7 +169,7 @@ bool aumentarPrioridade(PFILA f, int id, float novaPrioridade) {
                     aux = true;
             }
 
-                //Caso seja o ultimo da fila
+            //Caso seja o ultimo da fila
             else {
                 if (f->heap[i - 1]->prioridade > f->heap[i]->prioridade)
                     aux = true;
@@ -196,7 +196,7 @@ bool aumentarPrioridade(PFILA f, int id, float novaPrioridade) {
 bool reduzirPrioridade(PFILA f, int id, float novaPrioridade) {
     bool res = false;
 
-    flaot *resposta;
+    float *resposta = NULL;
 
     //Verifica se o elemento eh valido, caso nao for retorna false
     if (id < 0 || id >= f->maxElementos || !consultarPrioridade(f, id, resposta)) //mudar essa bagaça
@@ -237,7 +237,7 @@ bool reduzirPrioridade(PFILA f, int id, float novaPrioridade) {
                     aux = true;
             }
 
-                //Caso seja o primeiro da fila
+            //Caso seja o primeiro da fila
             else {
                 if (f->heap[i + 1]->prioridade < f->heap[i]->prioridade)
                     aux = true;
@@ -278,10 +278,11 @@ PONT removerElemento(PFILA f) {
     } else {
         int j = 0;
         while (j < f->elementosNoHeap - 1) {
-            if (f->heap[j] != NULL) {
-                f->heap[j] = f->heap[j + 1];
-                f->heap[j]->posicao--;
-            }
+
+            f->heap[j] = f->heap[j + 1];
+            f->heap[j]->posicao--;
+            f->heap[j + 1] = NULL;
+
             j++;
         }
     }
@@ -305,6 +306,7 @@ bool consultarPrioridade(PFILA f, int id, float *resposta) {
         if (f->heap[i]->id == id) {
             res = true;
             resposta = &f->heap[i]->prioridade;
+            break;
         }
         i++;
     }
@@ -313,145 +315,13 @@ bool consultarPrioridade(PFILA f, int id, float *resposta) {
 }
 
 int main() {
-    PFILA f = criarFila(10);
+    PFILA f = criarFila(4);
+    inserirElemento(f,0,200);
+    inserirElemento(f,1,201);
+    inserirElemento(f,2,201.5);
+    inserirElemento(f,3,10.5);
     exibirLog(f);
-    if (inserirElemento(f, 1, 1))
-        printf("ok\n");
-    else
-        printf("nok (1)\n");
-    exibirLog(f);
-    if (inserirElemento(f, 3, 3))
-        printf("ok\n");
-    else
-        printf("nok (2)\n");
-    exibirLog(f);
-    if (inserirElemento(f, 2, 2))
-        printf("ok\n");
-    else
-        printf("nok (3)\n");
-    exibirLog(f);
-    if (inserirElemento(f, 0, 0))
-        printf("ok\n");
-    else
-        printf("nok (4)\n");
-    exibirLog(f);
-    if (inserirElemento(f, 5, 5))
-        printf("ok\n");
-    else
-        printf("nok (5)\n");
-    exibirLog(f);
-    if (aumentarPrioridade(f, 5, 10))
-        printf("ok\n");
-    else
-        printf("nok (6)\n");
-    exibirLog(f);
-    if (aumentarPrioridade(f, 0, 15))
-        printf("ok\n");
-    else
-        printf("nok (7)\n");
-    exibirLog(f);
-    if (aumentarPrioridade(f, 3, 4))
-        printf("ok\n");
-    else
-        printf("nok (8)\n");
-    exibirLog(f);
-    if (aumentarPrioridade(f, 3, 4))
-        printf("ok\n");
-    else
-        printf("nok (9) - esperado, pois a nova prioridade nao eh maior\n");
-    exibirLog(f);
-    if (aumentarPrioridade(f, 4, 4))
-        printf("ok\n");
-    else
-        printf("nok (10) - esperado, elemento com id=4 nao existe\n");
-    exibirLog(f);
-
-    PONT prioritario;
-    prioritario = removerElemento(f);
-    if (prioritario)
-        printf("Prioritario: %i, %f\n", prioritario->id, prioritario->prioridade);
-    else
-        printf("Fila vazia (1)\n");
-    exibirLog(f);
-    prioritario = removerElemento(f);
-    if (prioritario)
-        printf("Prioritario: %i, %f\n", prioritario->id, prioritario->prioridade);
-    else
-        printf("Fila vazia (2)\n");
-    exibirLog(f);
-    prioritario = removerElemento(f);
-    if (prioritario)
-        printf("Prioritario: %i, %f\n", prioritario->id, prioritario->prioridade);
-    else
-        printf("Fila vazia (3)\n");
-    exibirLog(f);
-    prioritario = removerElemento(f);
-    if (prioritario)
-        printf("Prioritario: %i, %f\n", prioritario->id, prioritario->prioridade);
-    else
-        printf("Fila vazia (4)\n");
-    exibirLog(f);
-    prioritario = removerElemento(f);
-    if (prioritario)
-        printf("Prioritario: %i, %f\n", prioritario->id, prioritario->prioridade);
-    else
-        printf("Fila vazia (5)\n");
-    exibirLog(f);
-    prioritario = removerElemento(f);
-    if (prioritario)
-        printf("Prioritario: %i, %f\n", prioritario->id, prioritario->prioridade);
-    else
-        printf("Fila vazia (6)\n");
-    exibirLog(f);
-    prioritario = removerElemento(f);
-    if (prioritario)
-        printf("Prioritario: %i, %f\n", prioritario->id, prioritario->prioridade);
-    else
-        printf("Fila vazia (7)\n");
-    exibirLog(f);
-
-    if (inserirElemento(f, 1, 1))
-        printf("ok\n");
-    else
-        printf("nok (10)\n");
-    exibirLog(f);
-    if (inserirElemento(f, 3, 3))
-        printf("ok\n");
-    else
-        printf("nok (11)\n");
-    exibirLog(f);
-    if (inserirElemento(f, 2, 2))
-        printf("ok\n");
-    else
-        printf("nok (12)\n");
-    exibirLog(f);
-    if (inserirElemento(f, 0, 0.5)) // deu merda
-        printf("ok\n");
-    else
-        printf("nok (13)\n");
-    exibirLog(f);
-    if (inserirElemento(f, 5, 5))
-        printf("ok\n");
-    else
-        printf("nok (14)\n");
-    exibirLog(f);
-
-    printf("\n\nReduzindo prioridade\n");
-
-    if (reduzirPrioridade(f, 5, 0))
-        printf("ok\n");
-    else
-        printf("nok (15)\n");
-    exibirLog(f);
-    if (reduzirPrioridade(f, 0, 1))
-        printf("ok\n");
-    else
-        printf("nok (16) - esperado, nova prioridade eh maior\n");
-    exibirLog(f);
-    if (reduzirPrioridade(f, 3, 2))
-        printf("ok\n");
-    else
-        printf("nok (17)\n");
+    aumentarPrioridade(f,0,201.6);
     exibirLog(f);
 
     return 0;
