@@ -11,9 +11,6 @@
 
 #include "filaDePrioridade.h"
 
-
-#include "filaDePrioridade.h"
-
 PFILA criarFila(int max) {
     PFILA res = (PFILA) malloc(sizeof(FILADEPRIORIDADE));
     res->maxElementos = max;
@@ -42,6 +39,7 @@ void exibirLog(PFILA f) {
 int tamanho(PFILA f) {
     int tam = 0;
 
+    //Percorre o heap ate que seja nulo
     while (f->heap[tam] != NULL) {
         tam++;
     }
@@ -52,10 +50,10 @@ int tamanho(PFILA f) {
 bool inserirElemento(PFILA f, int id, float prioridade) {
     bool res = false;
 
-    float *resposta = NULL;
+    float resposta;
 
     //Verifica se o elemento eh valido, caso nao for retorna false
-    if (id < 0 || id >= f->maxElementos || consultarPrioridade(f, id, resposta))
+    if (id < 0 || id >= f->maxElementos || consultarPrioridade(f, id, &resposta))
         return res;
 
     //Elemento eh valido, entao eh alocado espaco na memoria e colocado no arranjo
@@ -131,10 +129,10 @@ bool inserirElemento(PFILA f, int id, float prioridade) {
 bool aumentarPrioridade(PFILA f, int id, float novaPrioridade) {
     bool res = false;
 
-    float *resposta = NULL;
+    float resposta;
 
     //Verifica se o elemento eh valido, caso nao for retorna false
-    if (id < 0 || id >= f->maxElementos || !consultarPrioridade(f, id, resposta))
+    if (id < 0 || id >= f->maxElementos || !consultarPrioridade(f, id, &resposta))
         return res;
 
     //Procura qual eh o elemento dentro do heap
@@ -199,10 +197,10 @@ bool aumentarPrioridade(PFILA f, int id, float novaPrioridade) {
 bool reduzirPrioridade(PFILA f, int id, float novaPrioridade) {
     bool res = false;
 
-    float *resposta = NULL;
+    float resposta;
 
     //Verifica se o elemento eh valido, caso nao for retorna false
-    if (id < 0 || id >= f->maxElementos || !consultarPrioridade(f, id, resposta)) //mudar essa bagaça
+    if (id < 0 || id >= f->maxElementos || !consultarPrioridade(f, id, &resposta)) //mudar essa bagaça
         return res;
 
     //Procura qual eh o elemento dentro do heap
@@ -264,39 +262,71 @@ bool reduzirPrioridade(PFILA f, int id, float novaPrioridade) {
     return res;
 }
 
-PONT removerElemento(PFILA f) {
-    PONT res = NULL;
+//Função auxiliar para exclusao
+void refazHeapMaximo(PFILA f, PONT atual) {
 
-    if (f->elementosNoHeap == 0)
-        return res;
+    if (atual == NULL)
+        return;
 
-    //Sava o ponteiro do elemento removido e o remove do arranjo
-    PONT elementoRemovido = f->heap[0];
-    f->arranjo[elementoRemovido->id] = NULL;
+    int esq = (2 * atual->posicao) + 1;
+    int dir = (2 * atual->posicao) + 2;
 
-    //Reorganiza o heap
+    //Verifica se os filhos da esq e dir sao validos, retorna caso nao forem
+    if (dir >= f->elementosNoHeap)
+        return;
+    if (esq >= f->elementosNoHeap)
+        return;
 
-    if (f->elementosNoHeap == 1) {
-        f->heap[0] = NULL;
-    } else {
-        int j = 0;
-        while (j < f->elementosNoHeap - 1) {
+    int maior = esq;
 
-            f->heap[j] = f->heap[j + 1];
-            f->heap[j]->posicao--;
-            f->heap[j + 1] = NULL;
-
-            j++;
+    if (dir >= 2) {
+        if (f->heap[esq]->prioridade < f->heap[dir]->prioridade) {
+            maior = dir;
         }
     }
 
-    f->elementosNoHeap--;
+    if (atual->prioridade < f->heap[maior]->prioridade) {
+        PONT noAux = f->heap[maior];
+        int posicaoAux = atual->posicao;
 
-    res = elementoRemovido;
+        f->heap[maior] = atual;
+        atual->posicao = maior;
+
+        f->heap[posicaoAux] = noAux;
+        noAux->posicao = posicaoAux;
+
+        //Recursao
+        refazHeapMaximo(f, atual);
+    }
+}
+
+PONT removerElemento(PFILA f) {
+
+    //Inicializa o resultado
+    PONT res = NULL;
+
+    //Verifica se o heap esta vazio
+    if (f->elementosNoHeap == 0)
+        return res;
+
+    //Guarda o elemento que sera removido e o troca de posicao
+    res = f->heap[0];
+    f->heap[0] = f->heap[f->elementosNoHeap - 1];
+    f->heap[0]->posicao = 0;
+
+    //Arruma os ponteiros
+    f->heap[f->elementosNoHeap - 1] = NULL;
+    (f->elementosNoHeap)--;
+    f->arranjo[res->id] = NULL;
+
+    //Arruma as posicoes do heap
+    refazHeapMaximo(f, f->heap[0]);
+
     return res;
 }
 
-bool consultarPrioridade(PFILA f, int id, float* resposta){
+
+bool consultarPrioridade(PFILA f, int id, float *resposta) {
     bool res = false;
 
     //Verifica se o elemento eh valido, caso nao for retorna false
@@ -307,6 +337,7 @@ bool consultarPrioridade(PFILA f, int id, float* resposta){
     PONT elemento = f->arranjo[id];
     if (elemento == NULL)
         return res;
+
 
     *resposta = elemento->prioridade;
 

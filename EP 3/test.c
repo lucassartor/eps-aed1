@@ -305,7 +305,7 @@ int main() {
 	}
 	exibirLog(f);
 
-	if(isMaxHeap(f)) printf("16-CORRETO\n");
+	if(isMaxHeap(f)) printf("16-CORRETO\n"); //ERRO
 	else {
 	    printf("16-incorreto(propriedades do heap max quebradas)\n");
         teste1[15] = 1;
